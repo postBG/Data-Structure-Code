@@ -1,0 +1,188 @@
+package test;
+
+public class DoublyLinkedList {
+
+	public static void main(String[] args) {
+		
+		MovieLinkedList list=new MovieLinkedList();
+		list.pushOrdered("BATMAN");
+		list.pushOrdered("Hello");
+		list.pushOrdered("Agatha");
+		list.pushOrdered("GoodBye");
+		
+		list.PrintList("Action");
+		list.erase("BATMAN");
+		list.erase("gos");
+		
+		System.out.println();
+		list.PrintList("Action");
+		
+	}
+
+}
+
+class NodeForGenre{//이 노드는 영화의 장르를 담고있다. 
+	
+	public String Genre;
+	public NodeForGenre next=null;
+	public NodeForGenre prev=null;
+	public NodeForMovie head=null;
+	
+}
+
+class NodeForMovie{//이 노드는 영화의 제목을 담고있다.
+	
+	public String MovieName;
+	public NodeForMovie next=null;
+	public NodeForMovie prev=null;
+	
+}
+
+class MovieLinkedList{
+
+	private NodeForMovie head;
+	private NodeForMovie tail;
+	private int NumberOfElement;
+	
+	//////////////////////////////////////////////////
+	
+	public MovieLinkedList(){//생성자
+		initList();
+	}
+	public NodeForMovie getHead(){
+		return head;
+	}
+	
+	public NodeForMovie getTail(){
+		return tail;
+	}
+	public int getNumberOfElement(){
+		return NumberOfElement;
+	}
+	public void initList(){
+		//MovieList를 생성하고 초기화한다.
+		NumberOfElement=0;
+		head=new NodeForMovie();
+		tail=new NodeForMovie();
+		
+		//head.MovieName="\0";
+		head.next=tail;
+		head.prev=head;
+		
+		//tail.MovieName="\0";
+		tail.next=tail;
+		tail.prev=head;
+	}
+	public void insertAfter(String Movie, NodeForMovie FrontNode){
+		//FrontNode뒤에 Movie의 String을 가진 노드를 삽입한다
+		NodeForMovie NewNode=new NodeForMovie();
+		NodeForMovie front=FrontNode;
+		NodeForMovie back=FrontNode.next;
+		
+		if(FrontNode==tail){//tail뒤에 삽입할 수 없다
+			System.out.println("Error");
+		}
+		
+		NewNode.MovieName=Movie;
+		NewNode.next=back;
+		NewNode.prev=front;
+		
+		front.next=NewNode;
+		back.prev=NewNode;
+		
+		NumberOfElement++;
+	}
+	
+	public NodeForMovie pushOrdered(String Movie){
+		//Movie를 가진 노드를 정렬된 순서로 삽입한다 
+		//성공하면 0, 아니면 1을 반환
+		
+		NodeForMovie iter=head.next;
+		
+		//compareTo함수는 MovieName이 알파벳순으로 앞이면 음수를 반환, 같으면 0, 더 뒤면 양수를 반환
+		while(iter!=tail && iter.MovieName.compareTo(Movie)<=0){
+			//새로운 노드가 들어갈 장소를 찾음
+			iter=iter.next;
+		}
+		//iter에는 현재 Movie와 알파벳순이 더 뒤인 노드가 들어있다.
+		//즉 새로운 노드는 iter의 앞에 삽입되어야 한다
+		NodeForMovie PointerOfInsertNode=new NodeForMovie();;
+		NodeForMovie front=iter.prev;
+		NodeForMovie back=iter;
+		
+		PointerOfInsertNode.MovieName=Movie;
+		PointerOfInsertNode.next=back;
+		PointerOfInsertNode.prev=front;
+		
+		front.next=PointerOfInsertNode;
+		back.prev=PointerOfInsertNode;
+		
+		NumberOfElement++;
+		
+		return PointerOfInsertNode;
+	}
+	public int erase(String TargetName){
+		//TargetName을 가진 노드를 찾아 삭제
+		NodeForMovie iter=head.next;
+		while(iter!=tail && iter.MovieName!=TargetName){
+			iter=iter.next;
+		}
+		
+		if(iter==tail)//못찾았으면
+			return 1;
+		
+		//찾았으면
+		NodeForMovie front=iter.prev;
+		NodeForMovie back=iter.next;
+		
+		front.next=back;
+		back.prev=front;
+		
+		NumberOfElement--;
+		
+		return 0;
+	}
+	public NodeForMovie FindNode(String TargetName){
+		//TargetName을 가진 노드를 찾아 그 주소를 반환
+		//못찾으면 null을 반환
+		NodeForMovie iter=head.next;
+		while(iter!=tail && iter.MovieName!=TargetName){
+			iter=iter.next;
+		}
+		
+		if(iter==tail)//못찾았으면
+			return null;
+		
+		//찾았으면
+		return iter;
+	}
+	public void PrintList(String GenreName){
+		//리스트의 내용을 전부 출력
+		//출력방식은 GenreName을 입력받아 알맞은 출력형식으로 출력하게 된다
+		NodeForMovie iter=head.next;
+		while(iter!=tail){
+			System.out.println('('+GenreName+','+' '+iter.MovieName+')');
+			iter=iter.next;
+		}
+		
+		return;
+	}
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

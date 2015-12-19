@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;test2.Dijkstra&apos; to &apos;PriorityqueueTest&apos;&#x0D;&#x0A;- Original project: &apos;JavaLearningProject&apos;&#x0D;&#x0A;- Original element: &apos;test2.Dijkstra&apos;&#x0D;&#x0A;- Renamed element: &apos;test2.PriorityqueueTest&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;Dijkstra&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;test2{Dijkstra.java[Dijkstra" matchStrategy="1" name="PriorityqueueTest" qualified="false" references="true" similarDeclarations="false" stamp="1400515162218" textual="false" version="1.0"/>
+</session>

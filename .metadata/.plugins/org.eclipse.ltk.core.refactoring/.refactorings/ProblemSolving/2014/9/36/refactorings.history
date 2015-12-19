@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Move element &apos;tomatocode2.java&apos; to &apos;ProblemSolving/src/tomato2&apos;&#x0D;&#x0A;- Original project: &apos;ProblemSolving&apos;&#x0D;&#x0A;- Destination element: &apos;ProblemSolving/src/tomato2&apos;&#x0D;&#x0A;- Original element: &apos;tomato.tomatocode2.java&apos;&#x0D;&#x0A;- Update references to refactored element" description="Move compilation unit" destination="/src&lt;tomato2" element1="/src&lt;tomato{tomatocode2.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.move" patterns="*" policy="org.eclipse.jdt.ui.moveResources" qualified="false" references="true" stamp="1409551871980" units="1" version="1.0"/>
+</session>

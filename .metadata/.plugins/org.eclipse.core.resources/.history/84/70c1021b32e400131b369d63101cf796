@@ -1,0 +1,604 @@
+package TestForHomeWork6;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.PriorityQueue;
+import java.util.Stack;
+import java.util.StringTokenizer;
+
+public class Subway {
+
+	public static void main(String[] args) {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		GraphOfStation Subways=new GraphOfStation();
+
+		while(true){	
+			try {
+				
+				String input = br.readLine();
+				
+				//blank line
+				if(input.length()==0){
+					Subways.MakeGraphForSearch();
+					break;
+				}
+				
+				Subways.PushStation(input);
+				
+			} catch (Exception e) {
+				
+				e.printStackTrace();
+				
+			}
+		}
+		
+		System.out.println("Time Read");
+		
+		while(true){
+			
+			try {
+				
+				String input=br.readLine();
+				
+				if(input.length()==0)
+					break;
+				
+				Subways.setAdjacent(input);
+				
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		
+		/*System.out.println("Test");
+		
+		while(true){
+			try {
+				String input=br.readLine();
+				
+				if(input.compareTo("GO")==0)
+					break;
+				
+				StringTokenizer st=new StringTokenizer(input);
+				String Command=st.nextToken();
+				String para=st.nextToken();
+				Station Tmp;
+				
+				if(Command.compareTo("Code")==0){
+					System.out.print("By Code: ");
+					System.out.println(para);
+					Tmp=Subways.SearchStationByCode(para);
+					
+					for(int i=0; i<Tmp.getAdjacentStationList().size(); i++){
+						System.out.print("("+Tmp.getAdjacentStationList().get(i).getCode()+", "+Tmp.getTimeToAdjacentStation().get(i)+") ");
+					}
+					System.out.println();
+				}
+				else if(Command.compareTo("Name")==0){
+					System.out.print("By Name: ");
+					System.out.println(para);
+					System.out.println(Subways.SearchStationByName(para).getName());
+				}
+				else if(Command.compareTo("Print")==0){
+					System.out.println("Print");
+					System.out.println("Code:");
+					
+					Station[] CodeArray=Subways.getGraphForCodeSearch();
+					
+					for(int i=0; i<CodeArray.length; i++)
+						System.out.print(CodeArray[i]);
+					
+					System.out.println();
+					Station[] NameArray=Subways.getGraphForNameSearch();
+					
+					System.out.println("Name:");
+					for(int i=0; i<NameArray.length; i++)
+						System.err.print(NameArray[i]);
+				}
+				
+			} catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
+			}
+		}*/
+		System.out.println("Enter");
+		while(true){
+			try {
+				String input=br.readLine();
+				
+				if(input.compareTo("END")==0)
+					break;
+				else if(input.charAt(0)=='C'){
+					StringTokenizer st=new StringTokenizer(input);
+					st.nextToken();
+					String para=st.nextToken();
+					Station Tmp;
+					
+					System.out.print("By Code: ");
+					System.out.println(para);
+					Tmp=Subways.SearchStationByCode(para);
+					
+					for(int i=0; i<Tmp.getNumberOfAdjacentStation(); i++){
+						System.out.print("("+Tmp.getAdjacentStation(i).getCode()+", "+Tmp.getAdjacentTime(i)+") ");
+					}
+					System.out.println();
+					continue;
+				}
+				else if(input.charAt(0)=='N'){
+					StringTokenizer st=new StringTokenizer(input);
+					st.nextToken();
+					String para=st.nextToken();
+					Station Tmp;
+					
+					System.out.print("By Name: ");
+					System.out.println(para);
+					Tmp=Subways.SearchStationByName(para);
+					
+					for(int i=0; i<Tmp.getNumberOfAdjacentStation(); i++){
+						System.out.print("("+Tmp.getAdjacentStation(i).getCode()+", "+Tmp.getAdjacentTime(i)+") ");
+					}
+					System.out.println();
+					continue;
+				}
+				
+				StringTokenizer st=new StringTokenizer(input);
+				if(st.countTokens()==2){
+					String StartName=st.nextToken();
+					String EndName=st.nextToken();
+				
+					FindShortestWayVer1(Subways, StartName, EndName);
+				}
+				else{
+					String StartName=st.nextToken();
+					String EndName=st.nextToken();
+					
+					FindShortestWayVer2(Subways, StartName, EndName);
+				}
+				
+			} catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
+			}
+		}
+	}
+	static private void FindShortestWayVer1(GraphOfStation Subways, String StartName, String EndName){
+		DurationComparator ComparatorWithDuration=new DurationComparator();
+		PriorityQueue<Station> DurationQueue=new PriorityQueue<>(20, ComparatorWithDuration);
+		Stack<Station> StackForReset=new Stack<>();
+		
+		Station Start=Subways.SearchStationByName(StartName);
+		
+		//맨 처음까지 걸리는 시간은 0
+		Start.setDuration(0);
+		DurationQueue.add(Start);
+		StackForReset.push(Start);
+		
+		Station iter;
+		do{
+			//우선순위 큐의 가장 윗노드를 취한다
+			iter=DurationQueue.remove();
+			if(iter.getName().compareTo(EndName)==0)//도착역을 찾았으면
+				break;//나간다
+			
+			int NumberOfAdjacent=iter.getNumberOfAdjacentStation();
+			Station Tmp;
+			
+			for(int i=0; i<NumberOfAdjacent; i++){
+				Tmp=iter.getAdjacentStation(i);
+			
+				if(Tmp.getDuration()>iter.getDuration()+iter.getAdjacentTime(i)){
+					
+					Tmp.setDuration(iter.getDuration()+iter.getAdjacentTime(i));
+					Tmp.setPrevStation(iter);
+					
+					StackForReset.push(Tmp);
+					DurationQueue.add(Tmp);
+				}
+			}
+			
+		}while(!DurationQueue.isEmpty());
+		
+		long FinalDuration=iter.getDuration();
+		
+		Stack<Station> StackForBackTracking=new Stack<>();
+		StackForBackTracking.add(iter);
+		
+		while(iter.getPrevStation()!=null){
+			if(iter.getPrevStation().getName().compareTo(iter.getName())==0){
+				
+				if(iter.getPrevStation().getPrevStation()!=null){
+					//환승을 한 경우
+					iter.setflag(1);
+					iter=iter.getPrevStation();
+					continue;
+				}
+				FinalDuration-=5;
+				iter=iter.getPrevStation();
+				continue;
+			}
+			StackForBackTracking.add(iter.getPrevStation());
+			iter=iter.getPrevStation();
+		}
+		
+		Station tmp;
+		int RoadLength=StackForBackTracking.size();
+		for(int i=0; i<RoadLength-1; i++){
+			tmp=StackForBackTracking.pop();
+			if(tmp.getflag()!=0){
+				//환승역
+				System.out.print("["+tmp.getName()+"] ");
+			}
+			else{
+				System.out.print(tmp.getName()+' ');
+			}
+		}
+		tmp=StackForBackTracking.pop();
+		if(tmp.getflag()!=0){
+			//환승역
+			System.out.print("["+tmp.getName()+"]");
+		}
+		else{
+			System.out.print(tmp.getName());
+		}
+		
+		System.out.println();
+		System.out.println(FinalDuration);
+		
+		while(!StackForReset.isEmpty()){
+			tmp=StackForReset.pop();
+			tmp.Reset();
+		}
+	}
+	static private void FindShortestWayVer2(GraphOfStation Subways, String StartName, String EndName){
+		DurationComparator ComparatorWithDuration=new DurationComparator();
+		PriorityQueue<Station> DurationQueue=new PriorityQueue<>(20, ComparatorWithDuration);
+		Stack<Station> StackForReset=new Stack<>();
+		
+		Station Start=Subways.SearchStationByName(StartName);
+		
+		//맨 처음까지 걸리는 시간은 0
+		Start.setDuration(0);
+		DurationQueue.add(Start);
+		StackForReset.push(Start);
+		
+		Station iter;
+		do{
+			//우선순위 큐의 가장 윗노드를 취한다
+			iter=DurationQueue.remove();
+			if(iter.getName().compareTo(EndName)==0)//도착역을 찾았으면
+				break;//나간다
+			
+			int NumberOfAdjacent=iter.getNumberOfAdjacentStation();
+			Station Tmp;
+			
+			for(int i=0; i<NumberOfAdjacent; i++){
+				Tmp=iter.getAdjacentStation(i);
+				
+				if(Tmp.getName().compareTo(iter.getName())==0){
+					if(Tmp.getDuration()>iter.getDuration()+Integer.MAX_VALUE){
+						Tmp.setDuration(iter.getDuration()+Integer.MAX_VALUE);
+						Tmp.setPrevStation(iter);
+						
+						StackForReset.push(Tmp);
+						DurationQueue.add(Tmp);
+					}
+				}
+				else{
+					if(Tmp.getDuration()>iter.getDuration()+iter.getAdjacentTime(i)){
+					
+						Tmp.setDuration(iter.getDuration()+iter.getAdjacentTime(i));
+						Tmp.setPrevStation(iter);
+					
+						StackForReset.push(Tmp);
+						DurationQueue.add(Tmp);
+					}
+				}
+			}
+			
+		}while(!DurationQueue.isEmpty());
+		
+		long FinalDuration=iter.getDuration();
+		
+		Stack<Station> StackForBackTracking=new Stack<>();
+		StackForBackTracking.add(iter);
+		
+		while(iter.getPrevStation()!=null){
+			if(iter.getPrevStation().getName().compareTo(iter.getName())==0){
+				
+				if(iter.getPrevStation().getPrevStation()!=null){
+					//환승을 한 경우
+					iter.setflag(1);
+					FinalDuration-=Integer.MAX_VALUE;
+					FinalDuration+=5;
+					iter=iter.getPrevStation();
+					continue;
+				}
+				FinalDuration-=5;
+				iter=iter.getPrevStation();
+				continue;
+			}
+			StackForBackTracking.add(iter.getPrevStation());
+			iter=iter.getPrevStation();
+		}
+		
+		Station tmp;
+		int RoadLength=StackForBackTracking.size();
+		for(int i=0; i<RoadLength-1; i++){
+			tmp=StackForBackTracking.pop();
+			if(tmp.getflag()!=0){
+				//환승역
+				System.out.print("["+tmp.getName()+"] ");
+			}
+			else{
+				System.out.print(tmp.getName()+' ');
+			}
+		}
+		tmp=StackForBackTracking.pop();
+		if(tmp.getflag()!=0){
+			//환승역
+			System.out.print("["+tmp.getName()+"]");
+		}
+		else{
+			System.out.print(tmp.getName());
+		}
+		
+		System.out.println();
+		System.out.println(FinalDuration);
+		
+		while(!StackForReset.isEmpty()){
+			tmp=StackForReset.pop();
+			tmp.Reset();
+		}
+	}
+}
+class CodeComparator implements Comparator<Station>{
+	
+	@Override
+	public int compare(Station A, Station B){
+		return A.getCode().compareTo(B.getCode());
+	}
+}
+class NameComparator implements Comparator<Station>{
+
+	@Override
+	public int compare(Station o1, Station o2) {
+		return o1.getName().compareTo(o2.getName());
+	}
+	
+}
+class DurationComparator implements Comparator<Station>{
+
+	@Override
+	public int compare(Station o1, Station o2) {
+		if(o1.getDuration()<o2.getDuration())
+			return -1;
+		else if(o1.getDuration()==o2.getDuration())
+			return 0;
+		else 
+			return 1;
+	}
+	
+}
+class GraphOfStation{
+	
+	private PriorityQueue<Station> CodeQueue;//코드명으로 정렬할 때 이용
+	private PriorityQueue<Station> NameQueue;//이름으로 정렬할 때 이용 
+	private LinkedList<Station> SettingList;//환승역 처리에 이용됨
+	private Integer ForTransferTime;
+	
+	private Station[] GraphForCodeSearch;
+	private Station[] GraphForNameSearch;
+	
+	private int NumberOfStation;
+	//////////////////////////////////////////////////////////
+	
+	public GraphOfStation(){
+		NumberOfStation=0;
+		CodeComparator ComparatorWithCode=new CodeComparator();
+		NameComparator ComparatorWithName=new NameComparator();
+		
+		CodeQueue=new PriorityQueue<>(20, ComparatorWithCode);
+		NameQueue=new PriorityQueue<>(20, ComparatorWithName);
+		SettingList=new LinkedList<>();
+		ForTransferTime=new Integer(5);
+	}
+	
+	public int getNumberOfStation(){
+		return NumberOfStation;
+	}
+	public Station[] getGraphForCodeSearch(){
+		return GraphForCodeSearch;
+	}
+	public Station[] getGraphForNameSearch(){
+		return GraphForNameSearch;
+	}
+	public Station SearchStationByCode(String Code){
+		//BinarySearch이용	
+		int imax=GraphForCodeSearch.length;
+		int imin=0;
+		
+		while(imax>=imin){
+			
+			int imid=(imax+imin)/2;
+			
+			if(GraphForCodeSearch[imid].getCode().compareTo(Code)==0){			
+				return GraphForCodeSearch[imid];				
+			}
+			else if(GraphForCodeSearch[imid].getCode().compareTo(Code)<0){
+				//key가 더 클 경우
+				imin=imid+1;
+			}
+			else{
+				imax=imid-1;
+			}
+		}
+		
+		//못찾았을 경우
+		return null;
+	}
+	
+	public Station SearchStationByName(String Name){
+		//BinarySearch이용	
+		int imax=GraphForNameSearch.length;
+		int imin=0;
+				
+		while(imax>=imin){
+					
+			int imid=(imax+imin)/2;
+					
+			if(GraphForNameSearch[imid].getName().compareTo(Name)==0){					
+				return GraphForNameSearch[imid];					
+			}
+			else if(GraphForNameSearch[imid].getName().compareTo(Name)<0){
+				//key가 더 클 경우
+				imin=imid+1;						
+			}
+			else{						
+				imax=imid-1;			
+			}
+		}
+		//못찾았을 경우
+		return null;
+	}
+	public void PushStation(String input){
+		//input을 받아 역을 만든다.
+		StringTokenizer st=new StringTokenizer(input);
+		PushStation(st.nextToken(), st.nextToken(), st.nextToken());
+	
+	}
+	public void PushStation(String Code, String Name, String Line){
+		//해쉬테이블로 고친다.
+		Station NewStation=new Station(Code, Name, Line);
+		Iterator<Station> Iter=SettingList.listIterator();
+		Station Tmp;
+		
+		while(Iter.hasNext()){
+			Tmp=Iter.next();
+			if(Tmp.getName().compareTo(Name)==0){
+				//이미 이름이 있을 경우 환승역이다
+				NewStation.setAdjacentStationAndTime(Tmp, ForTransferTime);
+				Tmp.setAdjacentStationAndTime(NewStation, ForTransferTime);
+			}
+		}
+		
+		CodeQueue.add(NewStation);
+		NameQueue.add(NewStation);
+		SettingList.add(NewStation);
+		NumberOfStation++;
+	}
+	public void setAdjacent(String input){
+		//시간 정보를 저장한다
+		StringTokenizer st=new StringTokenizer(input);
+		String StartCode=st.nextToken();
+		String EndCode=st.nextToken();
+		String TimeString=st.nextToken();
+		
+		long time=Long.parseLong(TimeString);
+		
+		setAdjacent(StartCode, EndCode, time);
+	}
+	public void setAdjacent(String StartCode, String EndCode, long time){
+		Station StartStation=SearchStationByCode(StartCode);
+		Station EndStation=SearchStationByCode(EndCode);
+		
+		StartStation.setAdjacentStationAndTime(EndStation, time);
+	}
+	public void MakeGraphForSearch(){
+		GraphForCodeSearch=new Station[NumberOfStation];
+		GraphForNameSearch=new Station[NumberOfStation];
+		
+		for(int i=0; i<NumberOfStation; i++){
+			GraphForCodeSearch[i]=CodeQueue.remove();
+			GraphForNameSearch[i]=NameQueue.remove();
+		}
+	}
+	
+}
+
+class Station{
+	private String Code;
+	private String Name;
+	private String Line;
+	
+	private long Duration=Long.MAX_VALUE;//지금까지의 누적시간
+	private Station PrevStation=null;//backtracking에 이용
+	
+	private LinkedList<Station> AdjacentStation=new LinkedList<>();
+	private LinkedList<Long> TimeToAdjacentStation=new LinkedList<>();
+	private int flag=0;//환승여부
+	///////////////////////////////////////////////////////
+	
+	public Station(String Code, String Name, String Line){
+		
+		this.Code=new String(Code);
+		this.Name=new String(Name);
+		this.Line=new String(Line);
+		
+	}
+	
+	public long getDuration(){
+		return Duration;
+	}
+	
+	public Station getPrevStation(){
+		return PrevStation;
+	}
+	
+	public String getName(){
+		return Name;
+	}
+	public int getflag(){
+		return flag;
+	}
+	public void setflag(int newflag){
+		this.flag=newflag;
+	}
+	public String getCode(){
+		return Code;
+	}
+	public String getLine(){
+		return Line;
+	}
+	public void setAdjacentStationAndTime(Station Node, long time){
+		
+		AdjacentStation.push(Node);
+		TimeToAdjacentStation.push(time);
+		return;
+		
+	}
+	public void setAdjacentStationAndTime(Station Node, Long ForTransferTime){
+		
+		AdjacentStation.push(Node);
+		TimeToAdjacentStation.push(ForTransferTime);
+		return;
+		
+	}
+	public void setDuration(long newDuration){
+		this.Duration=newDuration;
+	}
+	public void setPrevStation(Station PrevStation){
+		this.PrevStation=PrevStation;
+	}
+	
+	public Station getAdjacentStation(int i){
+		return AdjacentStation.get(i);
+	}
+	public long getAdjacentTime(int i){
+		return TimeToAdjacentStation.get(i);
+	}
+	public int getNumberOfAdjacentStation(){
+		return AdjacentStation.size();
+	}
+	public void Reset(){
+		Duration=Long.MAX_VALUE;
+		PrevStation=null;
+		flag=0;
+	}
+}

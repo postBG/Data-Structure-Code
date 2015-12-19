@@ -1,0 +1,33 @@
+package tomato;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+
+public class tomatocode1 {
+
+	public static void main(String[] args) {
+		BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+		
+		while(true){
+				
+			try {
+				String input=br.readLine();
+				
+				StringTokenizer st=new StringTokenizer(input);
+				
+				
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+			
+		}
+		
+	}
+
+}

@@ -1,0 +1,173 @@
+package tomato;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Comparator;
+import java.util.PriorityQueue;
+import java.util.StringTokenizer;
+
+public class tomatocode1 {
+
+	public static void main(String[] args) {
+		BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+		Daycomparator CompareWithDay=new Daycomparator();
+		PriorityQueue<Grid> DayQueue=new PriorityQueue<>(20, CompareWithDay);
+		
+		try {
+			String input=br.readLine();
+			
+			StringTokenizer st=new StringTokenizer(input);
+			int M=Integer.parseInt(st.nextToken());
+			int N=Integer.parseInt(st.nextToken());
+			
+			Grid[][] TomatoPlate=new Grid[M+2][N+2];//x,y형식
+			
+			for(int i=1; i<=N; i++){
+				
+				input=br.readLine();
+				st=new StringTokenizer(input);
+				for(int j=1; j<=M; j++){
+					
+					TomatoPlate[j][i]=new Grid(Integer.parseInt(st.nextToken()), j, i);
+					
+				}
+				
+			}
+			
+			//주위를 1로 두른다
+			for(int i=0; i<M+2; i++){
+				TomatoPlate[i][0]=new Grid(-1, i, 0);
+				TomatoPlate[i][N+1]=new Grid(-1, i, N+1);
+			}
+			
+			for(int i=1; i<=N; i++){
+				TomatoPlate[0][i]=new Grid(-1, 0, i);
+				TomatoPlate[M+1][i]=new Grid(-1, 0, i);
+			}
+			
+			for(int i=1; i<=M; i++){//맨처음  원래 익어있는 토마토를 pq에 넣는다
+				for(int j=1; j<=N; j++){
+					if(TomatoPlate[i][j].day==0){
+						DayQueue.add(new Grid(TomatoPlate[i][j].day, i, j));
+					}
+				}
+			}
+			
+			//여기부터 pq에서 값을 꺼내 처리한다
+			//pq가 empty가 될때까지 진행
+			Grid Tmp;
+			int tx, ty, newday;
+			while(!DayQueue.isEmpty()){
+				//꺼낸 것의 값이  현재의 값보다 큰 경우 continue
+				//그렇지 않은 경우 주위를 update해서 성공하면 다시 pq에 넣는다
+				
+				Tmp=DayQueue.remove();
+				tx=Tmp.x;
+				ty=Tmp.y;
+				
+				if(TomatoPlate[tx][ty].day<Tmp.day){
+					continue;
+				}
+				
+				//여기까지오면 update를 시도하여 성공하면 pq에 넣는다
+				newday=TomatoPlate[tx][ty].day+1;
+				System.out.println("newday:"+newday);
+				//up
+				if(newday<TomatoPlate[tx][ty-1].day){
+					TomatoPlate[tx][ty-1].day=newday;
+					DayQueue.add(new Grid(newday, tx, ty-1));
+				}
+				//down
+				if(newday<TomatoPlate[tx][ty+1].day){
+					TomatoPlate[tx][ty+1].day=newday;
+					DayQueue.add(new Grid(newday, tx, ty+1));
+				}
+				//right
+				if(newday<TomatoPlate[tx+1][ty].day){
+					TomatoPlate[tx+1][ty].day=newday;
+					DayQueue.add(new Grid(newday, tx+1, ty));
+				}
+				//left
+				if(newday<TomatoPlate[tx-1][ty].day){
+					TomatoPlate[tx-1][ty].day=newday;
+					DayQueue.add(new Grid(newday, tx-1, ty));
+				}
+			}
+			
+			for(int i=1; i<=M; i++){
+				for(int j=1; j<=N; j++){	
+					System.out.print(TomatoPlate[i][j].day);
+					System.out.print(' ');
+				}
+				System.out.println();
+			}
+			
+			//마지막으로 max값을 찾아서 출력
+			int max=-1;
+			
+			for(int i=1; i<=M; i++){
+				for(int j=1; j<=N; j++){
+					
+					if(max<TomatoPlate[i][j].day){
+						max=TomatoPlate[i][j].day;
+					}
+					
+				}
+			}
+			
+			if(max==Integer.MAX_VALUE)
+				System.out.println(-1);
+			else
+				System.out.println(max);
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+			
+			
+			
+		
+		
+	}
+
+}
+class Grid{
+	
+	public int day;
+	public int x, y;
+	
+	public Grid(int state, int x, int y){
+		
+		if(state==1){//익은 토마토
+			day=0;
+		}
+		else if(state==0){//익지 않은 토마토
+			day=Integer.MAX_VALUE;
+		}
+		else{//비어있는 상자
+			day=-100;
+		}
+		
+		this.x=x;
+		this.y=y;
+	}
+	
+}
+class Daycomparator implements Comparator<Grid>{
+
+	@Override
+	public int compare(Grid o1, Grid o2) {
+		
+		if(o1.day<o2.day)
+			return -1;
+		else if(o1.day==o2.day)
+			return 0;
+		else
+			return 1;
+		
+	}
+	
+	
+}
